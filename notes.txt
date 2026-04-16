@@ -1,0 +1,32 @@
+
+April 4 2026 
+Roadmap: 
+
+    1. use a pretrained CNN to turn an image into features 
+    2. use a LSTM type model to generate captions for that image
+
+    3. train and test the model on an image data set (that we find on the web)
+
+    4. show results for edge cases? When does the model break? etc 
+    5. show overall results 
+
+    Architecture: 
+
+    Encoder: CNN    
+    Decoder: LSTM 
+
+
+    input image -> CNN -> LSTM -> generate captions one word at a time 
+
+
+    Data Sets: 
+        COCO (or subset of it)
+
+    Testing: 
+        BLEU score (compares generated captions to human made captions)
+    
+    Pretrained CNN: 
+        ResNet?
+
+–––––––––––––––––––––
+
