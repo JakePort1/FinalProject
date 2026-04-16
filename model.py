@@ -29,23 +29,24 @@ class EncoderCNN(nn.Module):
     def __init__(self, embed_size):
         super(EncoderCNN, self).__init__()
 
-        resnet = models.resnet50(weights=models.ResNet50_Weights.DEFAULT)
+        #use resnet 8
+        #compare pretrain with no pretrain
+        resnet = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 
         for param in resnet.parameters():
             param.requires_grad = False
-
 
         modules = list(resnet.children())[:-1]
         self.resnet = nn.Sequential(*modules)
 
         self.embed = nn.Linear(resnet.fc.in_features, embed_size)
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.2)
 
     def forward(self, images):
 
         features = self.resnet(images)
         
-        #batch_size, 2048
+        #batch_size, 2048 
         features = features.view(features.size(0), -1)
         
         #Map to embed_size
@@ -97,7 +98,6 @@ class Encoder(nn.Module):
         )
 
 
-
 class Decoder(nn.Module):
 
     def __init__(
@@ -116,7 +116,7 @@ class Decoder(nn.Module):
 
         self.linear = nn.Linear(hidden_size,vocab_size)
 
-        self.dropout = nn.Dropout(0.5)
+        self.dropout = nn.Dropout(0.2)
 
     def forward(self, features, captions):
 
@@ -153,7 +153,7 @@ class CNNtoRNN(nn.Module):
 
     # Caption generation
 
-    def caption_image(self, image, vocabulary):
+    def caption_image(self, image, vocabulary,temperature=0.3):
 
         result_caption = []
 
@@ -162,23 +162,28 @@ class CNNtoRNN(nn.Module):
             x = self.encoder(image)
 
             # Add sequence dimension
-            x = x.unsqueeze(0)
+            x = x.unsqueeze(1)
 
             states = None
 
             for _ in range(config.MAX_LEN):
                 hiddens, states = self.decoder.lstm(x, states)
-                outputs = self.decoder.linear(hiddens.squeeze(0))
-                predicted = outputs.argmax(1)
+                outputs = self.decoder.linear(hiddens)
+                outputs=outputs.view(-1)
+
+                #predicted = outputs.squeeze().argmax(-1)
     
-                predicted_word = vocabulary.idx_to_captions([predicted.item()])
+                #predicted_word = vocabulary.idx_to_captions([predicted.item()])
+
+                probs = torch.softmax(outputs / temperature, dim=-1)
+                predicted = torch.multinomial(probs, 1).squeeze()
                 
                 #break if it hit end token
-                if predicted_word == "" or predicted.item() == vocabulary.word_to_idx[config.END_TOKEN]:
+                if  predicted.item() == vocabulary.word_to_idx[config.END_TOKEN]:
                         break
 
                 result_caption.append(predicted.item())
-                x = self.decoder.embed(predicted).unsqueeze(0)
+                x = self.decoder.embed((predicted).unsqueeze(0)).unsqueeze(0)
 
         return vocabulary.idx_to_captions(result_caption)
 

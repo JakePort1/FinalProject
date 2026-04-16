@@ -12,6 +12,7 @@ from dataset import FlickrDataset, collate_fn
 from vocab import Vocabulary
 
 def train_epoch(model, loader, optimizer, criterion, device,  step):
+
   
     model.train()
     total_loss = 0.0
@@ -71,8 +72,8 @@ def main():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     transform = transforms.Compose([
-        transforms.Resize((356, 356)),
-        transforms.RandomCrop((299, 299)),
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
 
         #data aug
@@ -97,8 +98,8 @@ def main():
     vocab_size = len(vocabulary.word_to_idx)
 
     # Correct Subset splitting
-    train_indices = list(range(0, 100))
-    test_indices = list(range(100, 200))
+    train_indices = list(range(0, 5000))
+    test_indices = list(range(5000, 6000))
     train_set = Subset(dataset, train_indices)
     test_set = Subset(dataset, test_indices)
 
@@ -149,10 +150,10 @@ def main():
         print(f"Epoch [{epoch}/{config.NUM_EPOCHS}] | Train Loss: {avg_train_loss:.4f} | Test Loss: {avg_test_loss:.4f}")
 
         # Evaluation and Checkpointing every 5 epochs
-        if epoch % 5 == 0:
-            save_checkpoint(model, optimizer, epoch, vocab_size, f"checkpoint_epoch_{epoch}.pth")
-            csv_writer.writerow([epoch,  avg_train_loss,avg_test_loss])
-            csv_file.flush()
+        #if epoch % 5 == 0:
+        save_checkpoint(model, optimizer, epoch, vocab_size, f"checkpoint_epoch_{epoch}.pth")
+        csv_writer.writerow([epoch,  avg_train_loss,avg_test_loss])
+        csv_file.flush()
 
     csv_file.close()
 

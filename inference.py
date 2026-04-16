@@ -41,10 +41,11 @@ def test_case(image_path,model_path,vocabulary):
 if __name__ == "__main__":
     # 1. Setup the same transform used in training
     transform = transforms.Compose([
-        transforms.Resize((356, 356)),
-        transforms.RandomCrop((299, 299)),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
     ])
 
     # 2. Initialize Vocabulary and Dataset 
@@ -64,7 +65,7 @@ if __name__ == "__main__":
     # 3. Path to your image and your best checkpoint
     # Make sure "test_image.jpg" is in your folder!
     my_image = "test.jpg" 
-    my_checkpoint = "unfreeze1000_checkpoint_epoch_49.pth"
+    my_checkpoint = "checkpoint_epoch_5.pth"
 
     # 4. Run the test
     test_case(my_image, my_checkpoint, vocabulary)
