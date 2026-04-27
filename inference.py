@@ -26,12 +26,12 @@ def test_case(image_path,model_path,vocabulary):
     model.load_state_dict(checkpoint["model_state"])
     model.eval()
 
-    # 4. Generate Caption
+    #Generate Caption
     with torch.no_grad():
-        # This calls your greedy search method
+        #This calls your greedy search method
         caption_indices = model.caption_image(img_tensor, vocabulary)
 
-        # Join words into a clean sentence
+        #join words
         sentence = "".join(caption_indices).replace("<START>", "").replace("<END>", "").strip()
         
     print(f"\n--- Result ---")
@@ -39,7 +39,7 @@ def test_case(image_path,model_path,vocabulary):
     print(f"Generated Caption: {sentence}\n")
 
 if __name__ == "__main__":
-    # 1. Setup the same transform used in training
+
     transform = transforms.Compose([
     transforms.Resize(256),
     transforms.CenterCrop(224),
@@ -48,8 +48,6 @@ if __name__ == "__main__":
                          std=[0.229, 0.224, 0.225])
     ])
 
-    # 2. Initialize Vocabulary and Dataset 
-    # This ensures word <-> index mapping is identical to training
 
     vocabulary = Vocabulary()
     dataset = FlickrDataset(
@@ -59,13 +57,10 @@ if __name__ == "__main__":
         transform=transform
     )
     
-    # Build the vocab based on the full captions list
+
     vocabulary.build_vocab(dataset.captions_list)
 
-    # 3. Path to your image and your best checkpoint
-    # Make sure "test_image.jpg" is in your folder!
-    my_image = "test.jpg" 
-    my_checkpoint = "checkpoint_epoch_5.pth"
+    my_image = "edge_case4.jpeg" 
+    my_checkpoint = "checkpoint_epoch_10.pth"
 
-    # 4. Run the test
     test_case(my_image, my_checkpoint, vocabulary)

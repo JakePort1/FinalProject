@@ -15,20 +15,20 @@ CAPTIONS_DIRECTORY ="/Users/Althea/Desktop/FinalProject/archive/captions.txt"
 checkpoints = None
 
 BATCH_SIZE = 32
-NUM_EPOCHS = 5
-LEARNING_RATE = 3e-4
+NUM_EPOCHS = 10
+LEARNING_RATE = 1e-4
 
-EMBED_SIZE = 256
-HIDDEN_SIZE = 512
+EMBED_SIZE = 512
+HIDDEN_SIZE = 1024
 
 #change hidden to 60
 
-NUM_LAYERS = 1
+NUM_LAYERS = 2
 
-MAX_LEN = 20
+MAX_LEN = 35
 PAD_TOKEN = "<PAD>"
 START_TOKEN = "<START>"
 END_TOKEN = "<END>"
 UNK_TOKEN = "<UNK>"
 
-THRESHOLD = 10
+THRESHOLD = 5

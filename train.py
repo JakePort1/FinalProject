@@ -36,7 +36,7 @@ def train_epoch(model, loader, optimizer, criterion, device,  step):
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=5)
         optimizer.step()
 
-        # Logging
+        #Logging
         total_loss += loss.item()
         step += 1
         
@@ -71,15 +71,12 @@ def save_checkpoint(model, optimizer, epoch, vocab_size, filename):
 def main():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
     transform = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),
         transforms.ToTensor(),
 
-        #data aug
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(25),
-        transforms.ColorJitter(),
 
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                std=[0.229, 0.224, 0.225])
@@ -87,6 +84,7 @@ def main():
 
    
     vocabulary = Vocabulary()
+
     dataset = FlickrDataset(
         image_directory=config.IMG_DIRECTORY,
         captions_file=config.CAPTIONS_DIRECTORY,
@@ -97,9 +95,9 @@ def main():
     vocabulary.build_vocab(dataset.captions_list)
     vocab_size = len(vocabulary.word_to_idx)
 
-    # Correct Subset splitting
-    train_indices = list(range(0, 5000))
-    test_indices = list(range(5000, 6000))
+    #Correct Subset splitting
+    train_indices = list(range(0, 2000))
+    test_indices = list(range(2000, 4500))
     train_set = Subset(dataset, train_indices)
     test_set = Subset(dataset, test_indices)
 
@@ -121,23 +119,14 @@ def main():
 
     print(f"Vocab Size: {vocab_size} | Train size: {len(train_set)} | Val size: {len(test_set)}")
 
-    # 3. Model, Criterion, Optimizer
+    #Model, Criterion, Optimizer
     model = CNNtoRNN(vocab_size).to(device)
     
-    # Freeze/Unfreeze Logic
-    #for param in model.encoder.inception.parameters():
-    #    param.requires_grad = False
-    
-    # Example: Unfreezing specifically for fine-tuning
-    #for param in model.encoder.inception.Mixed_7c.parameters():
-     #   param.requires_grad = True
-    #for param in model.encoder.inception.fc.parameters():
-      #  param.requires_grad = True
 
     criterion = nn.CrossEntropyLoss(ignore_index=vocabulary.word_to_idx[config.PAD_TOKEN])
     optimizer = optim.Adam(model.parameters(), lr=config.LEARNING_RATE)
 
-    # 4. Training Loop
+    #Training Loop
     csv_file = open("training_log.csv", "w", newline="")
     csv_writer = csv.writer(csv_file)
     csv_writer.writerow(["Epoch", "train loss", "val loss"])
@@ -149,8 +138,7 @@ def main():
         
         print(f"Epoch [{epoch}/{config.NUM_EPOCHS}] | Train Loss: {avg_train_loss:.4f} | Test Loss: {avg_test_loss:.4f}")
 
-        # Evaluation and Checkpointing every 5 epochs
-        #if epoch % 5 == 0:
+        
         save_checkpoint(model, optimizer, epoch, vocab_size, f"checkpoint_epoch_{epoch}.pth")
         csv_writer.writerow([epoch,  avg_train_loss,avg_test_loss])
         csv_file.flush()

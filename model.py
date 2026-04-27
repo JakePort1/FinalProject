@@ -7,30 +7,33 @@ import torchvision.models as models
 import config
 import vocab
 
-class TransformerModel(nn.Module):
-    def __init__(self, vocab_size):
-        super(TransformerModel, self).__init__()
+class EncoderCNN_NoPretrain(nn.Module):
+    def __init__(self, embed_size):
+        super(EncoderCNN_NoPretrain, self).__init__()
 
-        #pretrained encoder, containing pretrain weights 
-        self.vit=models.vit_b_16()
+        #no pretrain weight
+        resnet = models.resnet18(weights=None)
 
-        #remove label, raw features
-        self.vit.heads=nn.Identity()
+        modules = list(resnet.children())[:-1]
+        self.resnet = nn.Sequential(*modules)
 
-        self.encoder_linear=nn.Linear(768,config.EMBED_SIZE)
+        self.embed = nn.Linear(resnet.fc.in_features, embed_size)
+        self.dropout = nn.Dropout(0.2)
 
-        #decoder
-        self.embedding = nn.Embedding(vocab_size,config.EMBED_SIZE)
-        self.pos_encoder= nn.Parameter(torch.rand(1,config.MAX_LEN,config.EMBED_SIZE))
+    def forward(self, images):
+        features = self.resnet(images)
+        features = features.view(features.size(0), -1)
+        features = self.embed(features)
+        return self.dropout(features)
 
 
-
+#pretrain CNN
 class EncoderCNN(nn.Module):
     def __init__(self, embed_size):
         super(EncoderCNN, self).__init__()
 
-        #use resnet 8
-        #compare pretrain with no pretrain
+        #use resnet 18
+
         resnet = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 
         for param in resnet.parameters():
@@ -55,6 +58,7 @@ class EncoderCNN(nn.Module):
         return self.dropout(features)
 
 
+#inception_v3
 class Encoder(nn.Module):
 
     def __init__(self, embed_size, train_CNN=False):
@@ -69,7 +73,6 @@ class Encoder(nn.Module):
             aux_logits=True
         )
         self.inception.aux_logits=False
-        #self.inception.AuxLogits=None
 
         #Replace final FC layer
         self.inception.fc = nn.Linear(
@@ -153,11 +156,12 @@ class CNNtoRNN(nn.Module):
 
     # Caption generation
 
-    def caption_image(self, image, vocabulary,temperature=0.3):
+    def caption_image(self, image, vocabulary,temperature=0.2):
 
         result_caption = []
 
         with torch.no_grad():
+        
 
             x = self.encoder(image)
 

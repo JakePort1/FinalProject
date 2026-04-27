@@ -13,5 +13,3 @@ import kagglehub
 path = kagglehub.dataset_download("adityajn105/flickr8k")
 
 print("Path to dataset files:", path)
-
-# /Users/jacobport/.cache/kagglehub/datasets/adityajn105/flickr8k/versions/1
