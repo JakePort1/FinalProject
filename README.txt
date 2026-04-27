@@ -18,3 +18,4 @@ inference.py: Loads the saved .pth weight and vocabulary to generate captions fo
 
 test.jpg: A test JPG file for inference.py.
 
+We want to upload a final_model.pth file, but unfortunately, the file is too large. So we will include that in the canvas zip file.
