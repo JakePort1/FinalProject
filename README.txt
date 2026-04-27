@@ -18,4 +18,3 @@ inference.py: Loads the saved .pth weight and vocabulary to generate captions fo
 
 test.jpg: A test JPG file for inference.py.
 
-final_model.pth: A model that was trained under 20000 samples, 512 embed_size, 1024 hidden size, 2 number of layers, 10 epochs, 1e-4 learning rate, and 5 threshold.  
