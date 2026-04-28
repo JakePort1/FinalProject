@@ -19,3 +19,18 @@ inference.py: Loads the saved .pth weight and vocabulary to generate captions fo
 test.jpg: A test JPG file for inference.py.
 
 We want to upload a final_model.pth file, but unfortunately, the file is too large. So we will include that in the canvas zip file.
+
+
+Notes on How to use: 
+
+Downloading Flickr8k: 
+    To download the dataset file, run the data.py file. This will download the dataset on to your device 
+    Then, change the data sets img and captions folder to the correct path in the config file 
+
+To change the model parameters, you can change them in the config file 
+
+To train the model, run python train.py 
+
+To use the model on new images, run python inference.py 
+    To use new images, change "my_image" to the name of the file you would like to test a caption on 
+    To change what model weights to use, change  "my_checkpoint" to the checkpoint name you would like to use 
